@@ -1,10 +1,10 @@
 const express = require('express');
-const postsRouter = express.Router();
+const tagsRouter = express.Router();
  const {getAllTags} = require('../db');
 
 
 
-postsRouter.get('/', async (req, res)=> {
+tagsRouter.get('/', async (req, res)=> {
     const tags = await getAllTags();
     res.send({
         tags
