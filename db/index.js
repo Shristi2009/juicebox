@@ -1,7 +1,10 @@
 const { Client } = require('pg') // imports the pg module
 
 const client = new Client('postgres://localhost:5432/juicebox-dev');
-
+// const client = new Client({
+//   connectionString: process.env.DATABASE_URL || 'postgres://localhost:5432/juicebox-dev',
+//   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+// });
 /**
  * USER Methods
  */
@@ -100,7 +103,7 @@ async function createPost({
     `, [authorId, title, content]);
     const tagList = await createTags(tags);
 
-    return await addTagsToPost(post.id, tagList);
+     return await addTagsToPost(post.id, tagList);
 
     
   } catch (error) {
@@ -218,7 +221,7 @@ async function getAllPosts() {
 
 async function getPostsByUser(userId) {
   try {
-    const { rows } = await client.query(`
+    const { rows:postIds} = await client.query(`
       SELECT * 
       FROM posts
       WHERE "authorId"=${ userId };
@@ -254,15 +257,16 @@ async function createTags(tagList, name) {
     // returning nothing, we'll query after
     await client.query(`
     INSERT INTO tags(name)
-    VALUES ($1), ($2), ($3)
+    VALUES (${insertValues})
     ON CONFLICT (name) DO NOTHING;
-    `,[name]);
+    `,tagList);
 
     // select all tags where the name is in our taglist
     // return the rows from the query
-    await client.query(`SELECT * FROM tags
+    const{rows}=await client.query(`SELECT * FROM tags
     WHERE name
-    IN ($1, $2, $3);`);
+    IN (${selectValues});`, tagList);
+    return rows;
   } catch (error) {
     throw error;
   }
@@ -317,11 +321,12 @@ async function addTagsToPost(postId, tagList) {
 
   async function getAllTags() {
     try {
-       await client.query(`
+       const tags = await client.query(`
         SELECT * FROM tags;
       `);
   
-      
+      console.log(tags);
+      return tags;
     } catch (error) {
       throw error;
     }

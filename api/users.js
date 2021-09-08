@@ -1,7 +1,7 @@
 // api/users.js
 const express = require('express');
 const jwt = require('jsonwebtoken');
-//const { JWT_SECRET } = process.env;
+const { JWT_SECRET } = process.env;
 
 const usersRouter = express.Router();
 const {getAllUsers, getUserByUsername, createUser} = require('../db');
@@ -35,7 +35,7 @@ usersRouter.post('/login', async (req, res, next) => {
 
     if (user && user.password == password) {
       // create token & return to user
-      jwt.sign({id,username}, process.env.JWT_SECRET) // look at this error
+      
       const token = jwt.sign({ 
         id: user.id, 
         username

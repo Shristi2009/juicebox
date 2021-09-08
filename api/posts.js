@@ -1,15 +1,15 @@
 const express = require('express');
 const postsRouter = express.Router();
-const {getAllPosts, createPost} = require('../db');
+const {getAllPosts, createPost, getPostById,updatePost} = require('../db');
 const { requireUser } = require('./utils');
 
 postsRouter.get('/', async (req, res) => {
     try {
       const allPosts = await getAllPosts();
   
-        // keep a post if it is either active, or if it belongs to the current user
+      
         const posts = allPosts.filter(post => {
-            return post.active || (req.user && post.author.id === req.user.id);
+            return (post.active || (req.user && post.author.id === req.user.id));
           });
 
       res.send({
@@ -32,10 +32,21 @@ postsRouter.post('/', requireUser, async (req, res, next) => {
     }
   
     try {
+        postData.authorId= req.user.id
+        postData.title = title
+        postData.content =content
       // add authorId, title, content to postData object
       const post = await createPost(postData);
       // this will create the post and the tags for us
       // if the post comes back, res.send({ post });
+      if (post){
+          res.send({post});
+      }else{
+          next({
+              name: "post error",
+              message:" not posts found"
+          })
+      }
       // otherwise, next an appropriate error object 
     } catch ({ name, message }) {
       next({ name, message });
