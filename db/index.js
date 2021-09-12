@@ -284,9 +284,6 @@ async function createTags(tagList, name) {
     }
   }
 
-  
-  
-
 async function addTagsToPost(postId, tagList) {
     try {
       const createPostTagPromises = tagList.map(
